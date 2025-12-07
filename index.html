@@ -68,28 +68,30 @@
     // データ（必要になったらここを編集するだけでOK）
     // =========================
     const entries = [
-      { name: "1,9萬シャッフル", type: "搔き回し", condition: "未設定", desc: "未設定" },
-      { name: "1,9索サーチ", type: "防御", condition: "未設定", desc: "未設定" },
-      { name: "1,9筒スキップ", type: "搔き回し", condition: "未設定", desc: "未設定" },
-      { name: "鳴き付与「ズン」", type: "鳴き付与", condition: "未設定", desc: "未設定" },
-      { name: "鳴き付与「チー」", type: "鳴き付与", condition: "未設定", desc: "未設定" },
-      { name: "鳴き付与「チョン」", type: "鳴き付与", condition: "未設定", desc: "未設定" },
-      { name: "幻聴", type: "防御", condition: "未設定", desc: "未設定" },
-      { name: "裏捨て", type: "防御", condition: "未設定", desc: "未設定" },
-      { name: "テンパイ気配", type: "防御", condition: "未設定", desc: "未設定" },
-      { name: "河六回し", type: "搔き回し", condition: "未設定", desc: "未設定" },
-      { name: "お引越し", type: "搔き回し", condition: "未設定", desc: "未設定" },
-      { name: "革命", type: "搔き回し", condition: "未設定", desc: "未設定" },
-      { name: "役牌ノ令", type: "搔き回し", condition: "未設定", desc: "未設定" },
-      { name: "スタートダッシュ", type: "手牌強化", condition: "未設定", desc: "未設定" },
-      { name: "合法多牌", type: "手牌強化", condition: "未設定", desc: "未設定" },
-      { name: "鳴き警察", type: "手牌強化", condition: "未設定", desc: "未設定" },
-      { name: "北リセット", type: "手牌強化", condition: "未設定", desc: "未設定" },
-      { name: "自風デュエル", type: "攻撃", condition: "未設定", desc: "未設定" },
-      { name: "アディショナルタイム", type: "攻撃", condition: "未設定", desc: "未設定" },
-      { name: "カスタマイズ", type: "攻撃", condition: "未設定", desc: "未設定" },
-      { name: "ウノ捨て", type: "特殊", condition: "未設定", desc: "未設定" },
-      { name: "字牌ボンバー", type: "防御", condition: "未設定", desc: "未設定" }
+      { name: "1,9萬シャッフル", type: "搔き回し", condition: "1,9萬を捨てた時", desc: "未設定" },
+      { name: "1,9索サーチ", type: "防御", condition: "1,9索を捨てた時", desc: "未設定" },
+      { name: "1,9筒スキップ", type: "搔き回し", condition: "1,9筒を捨てた時", desc: "未設定" },
+      { name: "鳴き付与「ズン」", type: "鳴き付与", condition: "全家からの鳴き", desc: "未設定" },
+      { name: "鳴き付与「チー」", type: "鳴き付与", condition: "上家からの鳴き", desc: "未設定" },
+      { name: "鳴き付与「チョン」", type: "鳴き付与", condition: "全家からの鳴き", desc: "未設定" },
+      { name: "幻聴", type: "防御", condition: "他プレイヤーからのリーチ宣言時", desc: "未設定" },
+      { name: "裏捨て", type: "防御", condition: "牌を捨てる時", desc: "未設定" },
+      { name: "テンパイ気配", type: "防御", condition: "常時", desc: "未設定" },
+      { name: "河六回し", type: "搔き回し", condition: "自分の河に6の倍数分牌を捨てた時", desc: "未設定" },
+      { name: "お引越し", type: "搔き回し", condition: "対子", desc: "未設定" },
+      { name: "革命", type: "搔き回し", condition: "自分の河に同じ牌が4枚捨てられている時", desc: "未設定" },
+      { name: "役牌ノ令", type: "搔き回し", condition: "親の第一ツモ時", desc: "未設定" },
+      { name: "スタートダッシュ", type: "手牌強化", condition: "自分の第一ツモ時", desc: "未設定" },
+      { name: "合法多牌", type: "手牌強化", condition: "自分の第一ツモ時", desc: "未設定" },
+      { name: "鳴き警察", type: "手牌強化", condition: "自分を含むプレイヤーが鳴いた時", desc: "未設定" },
+      { name: "北リセット", type: "手牌強化", condition: "北を捨てた時", desc: "未設定" },
+      { name: "自風デュエル", type: "攻撃", condition: "リーチ時に自風の牌を捨てた時", desc: "未設定" },
+      { name: "アディショナルタイム", type: "攻撃", condition: "自分以外のプレイヤーが上がった時", desc: "未設定" },
+      { name: "カスタマイズ", type: "攻撃", condition: "自分のリーチ時", desc: "未設定" },
+      { name: "ウノ捨て", type: "特殊", condition: "牌を捨てる時", desc: "未設定" },
+      { name: "字牌ボンバー", type: "防御", condition: "自分の河に字牌が5つ並んだ時", desc: "未設定" },
+      { name: "暗転", type: "搔き回し", condition: "自風を捨てた時", desc: "未設定" },
+      { name: "ドラ縛り", type: "搔き回し", condition: "ドラを捨てた時", desc: "未設定" },
     ];
 
     // 抽選対象（チェックボックスで調整される）
@@ -220,7 +222,7 @@
     }
 
     // =========================
-    // 簡易テスト（最低限の動作保証)
+    // 簡易テスト（最低限の動作保証）
     // =========================
     function runBasicTests() {
       if (typeof pickWords !== 'function' || typeof showTab !== 'function' || typeof applyFilter !== 'function') {
