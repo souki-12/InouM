@@ -10,12 +10,58 @@
     button { padding: 10px 14px; font-size: 1rem; width: auto; }
     .panel { margin-top: 12px; }
     .result { margin-top: 12px; padding: 10px; border: 1px solid #ccc; background: #f7f7f7; }
-    .mini { font-size: 0.92em; color: #444; }
-    .muted { color: #666; }
-    input[type="text"], input[type="number"] { padding: 10px; font-size: 1rem; width: 100%; box-sizing: border-box; }
+
+    input[type="number"] { padding: 10px; font-size: 1rem; width: 100%; box-sizing: border-box; }
     .grid { display: grid; gap: 10px; }
 
-    /* ▼▼ スマホ対応 ▼▼ */
+    /* -------------------- */
+    /* 見やすいボックス形式 */
+    .entry-box {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      background: #fff;
+    }
+    .entry-name {
+      font-weight: bold;
+      font-size: 1.1em;
+      margin-bottom: 6px;
+    }
+    .entry-type {
+      background: #eef;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.8em;
+      margin-left: 6px;
+    }
+    .entry-condition {
+      background: #d0ebff;
+      padding: 6px 8px;
+      margin: 4px 0;
+      border-radius: 4px;
+    }
+    .entry-desc {
+      background: #fff3bf;
+      padding: 6px 8px;
+      margin: 4px 0;
+      border-radius: 4px;
+    }
+
+    /* 単語のみゾーン用 */
+    .word-card {
+      font-weight: bold;
+      font-size: 1.2em;
+      background: #ff5b5b85;
+      border: 2px solid #000000;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin: 6px 0;
+      text-align: center;
+      box-shadow: 1px 1px 4px rgba(0,0,0,0.1);
+    }
+
+    /* スマホ対応 */
     @media (max-width: 600px) {
       body { margin: 12px; }
       h1 { font-size: 1.4rem; }
@@ -23,57 +69,60 @@
       .nav { flex-direction: column; gap: 10px; }
       .result { font-size: 0.95rem; }
       label { font-size: 1rem; }
+      .word-card { font-size: 1.1em; padding: 8px 10px; }
     }
   </style>
 </head>
 <body>
-  <h1>ランダム単語抽出ツール</h1>
+<h1>ランダム単語抽出ツール</h1>
 
-  <div class="nav">
-    <button type="button" onclick="showTab('randomTab')">ランダム生成</button>
-    <button type="button" onclick="showTab('filterTab')">絞り込み</button>
-    <button type="button" onclick="showTab('infoTab')">単語解説</button>
+<div class="nav">
+  <button type="button" onclick="showTab('randomTab')">ランダム生成</button>
+  <button type="button" onclick="showTab('filterTab')">絞り込み</button>
+  <button type="button" onclick="showTab('infoTab')">単語解説</button>
+</div>
+
+<!-- ランダム生成タブ -->
+<div id="randomTab" class="panel" style="display:none;">
+  <p class="mini">現在の抽選対象：<span id="activeCount">—</span> / <span id="totalCount">—</span></p>
+  <p>抽出する個数：</p>
+  <input type="number" id="countInput" min="1" value="1" />
+  <br />
+  <button type="button" onclick="pickWords()">抽出する</button>
+
+  <!-- 単語のみ表示エリア -->
+  <div class="result" id="wordListArea" style="margin-top:12px;"></div>
+
+  <!-- 解説付き表示エリア -->
+  <div class="result" id="resultArea" style="margin-top:12px;"></div>
+</div>
+
+<!-- 絞り込みタブ -->
+<div id="filterTab" class="panel" style="display:none;">
+  <h2>絞り込み</h2>
+  <p>ランダム生成の対象にする単語にチェックを入れてください（初期は全選択）。</p>
+  <div id="filterList" class="grid"></div>
+  <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+    <button type="button" onclick="applyFilter()">絞り込みを適用</button>
+    <button type="button" onclick="resetFilter()">リセット（全選択）</button>
   </div>
+  <div class="result" id="filterResult"></div>
+</div>
 
-  <!-- ランダム生成タブ -->
-  <div id="randomTab" class="panel" style="display:none;">
-    <p class="mini">現在の抽選対象：<span id="activeCount">—</span> / <span id="totalCount">—</span></p>
-    <p>抽出する個数：</p>
-    <input type="number" id="countInput" min="1" value="1" />
-    <br />
-    <button type="button" onclick="pickWords()">抽出する</button>
-    <div class="result" id="resultArea"></div>
-  </div>
+<!-- 解説タブ -->
+<div id="infoTab" class="panel" style="display:none;">
+  <h2>単語の解説</h2>
+  <div id="infoContent"></div>
+</div>
 
-  <!-- 絞り込みタブ（チェックボックス羅列） -->
-  <div id="filterTab" class="panel" style="display:none;">
-    <h2>絞り込み</h2>
-    <p>ランダム生成の対象にする単語にチェックを入れてください（初期は全選択）。</p>
-    <div id="filterList" class="grid"></div>
-    <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
-      <button type="button" onclick="applyFilter()">絞り込みを適用</button>
-      <button type="button" onclick="resetFilter()">リセット（全選択）</button>
-    </div>
-    <div class="result" id="filterResult"></div>
-  </div>
-
-  <!-- 解説タブ -->
-  <div id="infoTab" class="panel" style="display:none;">
-    <h2>単語の解説</h2>
-    <div id="infoContent"></div>
-  </div>
-
-  <script>
-    // =========================
-    // データ（必要になったらここを編集するだけでOK）
-    // =========================
-    const entries = [
-      { name: "1,9萬シャッフル", type: "搔き回し", condition: "1,9萬を捨てた時", desc: "1,9萬を捨てた際に発動する。自分の手牌から牌を1枚選び、その後他プレイヤーの手牌から1枚ずつ選びそれぞれをランダムに入れ替える。リーチ者は選ばれない" },
+<script>
+const entries = [
+      { name: "1,9萬シャッフル", type: "搔き回し", condition: "1,9萬を捨てた時", desc: "1,9萬を捨てた際に発動する。自分の手牌から牌を1枚選び、他プレイヤーの手牌から1枚ずつ選びランダムに入れ替える。リーチ者は選ばれない。" },
       { name: "1,9索サーチ", type: "防御", condition: "1,9索を捨てた時", desc: "1,9索を捨てた際に発動する。牌をひとつ宣言し、他プレイヤーはその持っている枚数を宣言する。" },
       { name: "1,9筒スキップ", type: "搔き回し", condition: "1,9筒を捨てた時", desc: "1,9筒を捨てた際に発動する。次のプレイヤーの手番は飛ばされる。" },
       { name: "鳴き付与「ズン」", type: "鳴き付与", condition: "全家からの鳴き", desc: "同じ数字の牌であれば牌の種類に関係なく鳴くことができる。その面子は違う種類の牌が混じった刻子として処理される。チーと複合する。" },
       { name: "鳴き付与「チー」", type: "鳴き付与", condition: "上家からの鳴き", desc: "一般的なチー。ズンと複合する。" },
-      { name: "鳴き付与「チョン」", type: "鳴き付与", condition: "全家からの鳴き", desc: "1枚の状態から他プレイヤーから出た同じ牌を2枚組として鳴くことができる。この際、鳴いた牌は頭として処理され、今後は4面子を作っていく。その後、チョンした牌をツモってきた際は加槓のように鳴いた牌に追加することができる。その後、1枚切り、3面子1雀頭を作っていく。チョンとポンが同時に発生された場合はポンが優先される。" },
+      { name: "鳴き付与「チョン」", type: "鳴き付与", condition: "全家からの鳴き", desc: "1枚の状態から他プレイヤーから出た同じ牌を2枚組として鳴くことができる。この際、鳴いた牌は頭として処理され、今後は4面子を作っていく。その後、チョンした牌をツモってきた際は加槓のように鳴いた牌に追加できる。チョンとポンが同時に発生された場合はポンが優先される。" },
       { name: "幻聴", type: "防御", condition: "他プレイヤーからのリーチ宣言時", desc: "他プレイヤーからリーチが入った際に、そのリーチが「両面」「愚形」「シャンポン」「多面張」「その他」のどれであるかを知ることができる。" },
       { name: "裏捨て", type: "防御", condition: "牌を捨てる時", desc: "牌を捨てる際裏向きで捨てることができる。この牌は自身のフリテンにならず、他プレイヤーから上がられたり鳴かれたりすることはない。この能力は1局のうち2回しか発動できない。" },
       { name: "テンパイ気配", type: "防御", condition: "常時", desc: "任意のタイミングで他プレイヤーがテンパイしているかどうかを知ることができる。能力を使うたびに、自分の手牌の１枚を開示しなければならない。開示していた牌を捨てた後も能力を使った回数分の牌は開示しておかなければならない。" },
@@ -93,167 +142,111 @@
       { name: "字牌ボンバー", type: "防御", condition: "自分の河に字牌が5つ並んだ時", desc: "自分の河に字牌が5枚並んだ際に発動できる。牌をひとつ宣言し、自分も含む、その牌を持っていたプレイヤーは自分の河に捨て、能力発動者から順に捨てた分山からツモる。その際に捨てられた牌に関しては鳴くことも上がることもできない。" },
       { name: "暗転", type: "搔き回し", condition: "自風を捨てた時", desc: "自風を捨てた際に発動する。他プレイヤーはこのターンツモ牌を見ずに捨てる牌を選択し、捨てた後にツモ牌を確認する。(このターン:自分の次のツモ番までor鳴きが入った時点で終了)" },
       { name: "ドラ縛り", type: "搔き回し", condition: "ドラを捨てた時", desc: "ドラを切った際に発動する。他プレイヤーはこのターン捨てられたドラと同じ種類の牌を捨てなければならない。その際、手牌に同じ種類の牌がある場合は必ず、ない場合はツモ切りをする。(このターン:自分の次のツモ番までor鳴きが入った時点で終了)" },
-    ];
+];
 
-    // 抽選対象（チェックボックスで調整される）
-    let activeNames = entries.map(e => e.name);
+let activeNames = entries.map(e => e.name);
 
-    // =========================
-    // ユーティリティ
-    // =========================
-    function byName(name) {
-      return entries.find(e => e.name === name);
-    }
+function byName(name){ return entries.find(e => e.name === name); }
 
-    function updateRandomTargetSummary() {
-      document.getElementById('totalCount').textContent = String(entries.length);
-      document.getElementById('activeCount').textContent = String(activeNames.length);
-    }
+function updateRandomTargetSummary(){
+  document.getElementById('totalCount').textContent = entries.length;
+  document.getElementById('activeCount').textContent = activeNames.length;
+}
 
-    // =========================
-    // タブ切り替え
-    // =========================
-    function showTab(tabId) {
-      ['randomTab', 'filterTab', 'infoTab'].forEach(id => {
-        document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none';
-      });
-      if (tabId === 'filterTab') renderFilterList();
-      if (tabId === 'infoTab') renderInfoList();
-      if (tabId === 'randomTab') updateRandomTargetSummary();
-    }
+function showTab(tabId){
+  ['randomTab','filterTab','infoTab'].forEach(id=>{
+    document.getElementById(id).style.display=(id===tabId)?'block':'none';
+  });
+  if(tabId==='filterTab') renderFilterList();
+  if(tabId==='infoTab') renderInfoList();
+  if(tabId==='randomTab') updateRandomTargetSummary();
+}
 
-    // =========================
-    // ランダム生成（絞り込み結果が反映される）
-    // =========================
-    function pickWords() {
-      const count = Number(document.getElementById('countInput').value);
-      const result = document.getElementById('resultArea');
+function pickWords(){
+  const count = Number(document.getElementById('countInput').value);
+  const result = document.getElementById('resultArea');
+  const wordList = document.getElementById('wordListArea');
 
-      if (!Number.isFinite(count) || count < 1) {
-        result.textContent = '個数は1以上の数値で指定してください。';
-        return;
-      }
+  if(!Number.isFinite(count) || count<1){ 
+    result.textContent = '個数は1以上の数値で指定してください。'; 
+    wordList.textContent = '';
+    return; 
+  }
+  if(activeNames.length===0){ 
+    result.textContent = '抽選対象がありません。'; 
+    wordList.textContent = '';
+    return; 
+  }
+  if(count > activeNames.length){ 
+    result.textContent = `抽選対象が不足しています（対象: ${activeNames.length}）。`; 
+    wordList.textContent = '';
+    return; 
+  }
 
-      if (activeNames.length === 0) {
-        result.textContent = '抽選対象がありません（絞り込みが空です）。絞り込みタブで単語を選択してください。';
-        return;
-      }
+  const shuffled = [...activeNames].sort(() => Math.random() - 0.5);
+  const selected = shuffled.slice(0, count);
 
-      if (count > activeNames.length) {
-        result.textContent = `抽選対象が不足しています（対象: ${activeNames.length}）。個数を減らすか、絞り込みを緩めてください。`;
-        return;
-      }
+  // 単語のみ表示ゾーン（単語名だけ）
+  let wordHtml = '';
+  selected.forEach(name => {
+    wordHtml += `<div class="word-card">${name}</div>`;
+  });
+  wordList.innerHTML = wordHtml;
 
-      const shuffled = [...activeNames].sort(() => Math.random() - 0.5);
-      const selected = shuffled.slice(0, count);
+  // 解説付き詳細表示
+  let html = '';
+  selected.forEach(name=>{
+    const e=byName(name);
+    html += `
+      <div class="entry-box">
+        <div class="entry-name">${name}<span class="entry-type">${e.type}</span></div>
+        <div class="entry-condition"><strong>発動条件:</strong> ${e.condition}</div>
+        <div class="entry-desc"><strong>解説:</strong> ${e.desc}</div>
+      </div>
+    `;
+  });
+  result.innerHTML = html;
+}
 
-      let html = `<strong>抽出結果:</strong><br>${selected.join('<br>')}`;
-      html += `<hr><strong>解説:</strong>`;
-      selected.forEach((name, i) => {
-        const e = byName(name);
-        html += `
-          <div style="padding:8px 0;">
-            <h3 style=\"margin:0 0 4px 0;\">${name}
-              <span style=\"background:#eef;padding:2px 6px;border-radius:4px;font-size:0.8em;margin-left:6px;\">${e.type}</span>
-            </h3>
-            <div>発動条件: ${e.condition}</div>
-            <div>解説: ${e.desc}</div>
-          </div>
-          ${i < selected.length - 1 ? '<hr>' : ''}
-        `;
-      });
+function renderFilterList(){
+  const area=document.getElementById('filterList'); area.innerHTML='';
+  entries.forEach((e,idx)=>{
+    const id=`filter_${idx}`;
+    const checked=activeNames.includes(e.name)?'checked':'';
+    area.innerHTML+=`<label style="display:block;margin:2px 0;">
+      <input type="checkbox" id="${id}" value="${e.name}" ${checked}/> ${e.name}</label>`;
+  });
+}
 
-      result.innerHTML = html;
-    }
+function applyFilter(){
+  activeNames=Array.from(document.querySelectorAll('#filterList input[type="checkbox"]:checked')).map(el=>el.value);
+  document.getElementById('filterResult').textContent=`適用しました：対象 ${activeNames.length} / ${entries.length}`;
+  updateRandomTargetSummary();
+}
 
-    // =========================
-    // 絞り込み（チェックボックス）
-    // =========================
-    function renderFilterList() {
-      const area = document.getElementById('filterList');
-      area.innerHTML = '';
+function resetFilter(){
+  activeNames=entries.map(e=>e.name);
+  renderFilterList();
+  document.getElementById('filterResult').textContent=`リセットしました：対象 ${activeNames.length} / ${entries.length}`;
+  updateRandomTargetSummary();
+}
 
-      // 単語の羅列（初期は全選択状態）
-      entries.forEach((e, idx) => {
-        const id = `filter_${idx}`;
-        const checked = activeNames.includes(e.name) ? 'checked' : '';
-        area.innerHTML += `
-          <label style="display:block; margin:2px 0;">
-            <input type="checkbox" id="${id}" value="${e.name}" ${checked} /> ${e.name}
-          </label>`;
-      });
-    }
+function renderInfoList(){
+  const box=document.getElementById('infoContent'); box.innerHTML='';
+  entries.forEach(e=>{
+    box.innerHTML+=`
+      <div class="entry-box">
+        <div class="entry-name">${e.name}<span class="entry-type">${e.type}</span></div>
+        <div class="entry-condition"><strong>発動条件:</strong> ${e.condition}</div>
+        <div class="entry-desc"><strong>解説:</strong> ${e.desc}</div>
+      </div>
+    `;
+  });
+}
 
-    function applyFilter() {
-      const selected = Array.from(document.querySelectorAll('#filterList input[type="checkbox"]:checked'))
-        .map(el => el.value);
-
-      activeNames = selected;
-
-      document.getElementById('filterResult').textContent = `適用しました：対象 ${activeNames.length} / ${entries.length}`;
-      updateRandomTargetSummary();
-    }
-
-    function resetFilter() {
-      activeNames = entries.map(e => e.name);
-      renderFilterList();
-      document.getElementById('filterResult').textContent = `リセットしました：対象 ${activeNames.length} / ${entries.length}`;
-      updateRandomTargetSummary();
-    }
-
-    // =========================
-    // 解説一覧（情報タブ）
-    // =========================
-    function renderInfoList() {
-      const box = document.getElementById('infoContent');
-      box.innerHTML = '';
-      entries.forEach((e, i) => {
-        box.innerHTML += `
-          <div style="padding:8px 0;">
-            <h3 style="margin:0 0 4px 0;">
-              ${e.name}
-              <span style=\"background:#eef;padding:2px 6px;border-radius:4px;font-size:0.8em;margin-left:6px;\">${e.type}</span>
-            </h3>
-            <div>発動条件: ${e.condition}</div>
-            <div>解説: ${e.desc}</div>
-          </div>
-          ${i < entries.length - 1 ? '<hr>' : ''}
-        `;
-      });
-    }
-
-    // =========================
-    // 簡易テスト（最低限の動作保証）
-    // =========================
-    function runBasicTests() {
-      if (typeof pickWords !== 'function' || typeof showTab !== 'function' || typeof applyFilter !== 'function') {
-        console.warn('TEST FAIL: 主要関数が定義されていません');
-      }
-      // 絞り込み適用の最小確認
-      const before = activeNames.length;
-      applyFilter();
-      if (!Array.isArray(activeNames)) {
-        console.warn('TEST FAIL: activeNames が配列ではありません');
-      }
-      // 戻す
-      activeNames = entries.map(e => e.name);
-      updateRandomTargetSummary();
-      if (before !== entries.length) {
-        console.warn('TEST WARN: 初期対象数が想定と異なります');
-      }
-    }
-
-    // =========================
-    // 初期化（ここから実行）
-    // =========================
-    document.addEventListener('DOMContentLoaded', () => {
-      // 初期表示（全選択）
-      activeNames = entries.map(e => e.name);
-      renderFilterList();
-      updateRandomTargetSummary();
-      showTab('randomTab');
-      runBasicTests();
-    });
-  </script>
+document.addEventListener('DOMContentLoaded',()=>{
+  renderFilterList(); updateRandomTargetSummary(); showTab('randomTab');
+});
+</script>
 </body>
 </html>
