@@ -14,7 +14,6 @@
     input[type="number"] { padding: 10px; font-size: 1rem; width: 100%; box-sizing: border-box; }
     .grid { display: grid; gap: 10px; }
 
-    /* -------------------- */
     /* 見やすいボックス形式 */
     .entry-box {
       border: 1px solid #ddd;
@@ -52,7 +51,7 @@
     .word-card {
       font-weight: bold;
       font-size: 1.2em;
-      background: #ff5b5b85;
+      background: #ff666685;
       border: 2px solid #000000;
       border-radius: 8px;
       padding: 10px 12px;
@@ -82,7 +81,6 @@
   <button type="button" onclick="showTab('infoTab')">単語解説</button>
 </div>
 
-<!-- ランダム生成タブ -->
 <div id="randomTab" class="panel" style="display:none;">
   <p class="mini">現在の抽選対象：<span id="activeCount">—</span> / <span id="totalCount">—</span></p>
   <p>抽出する個数：</p>
@@ -97,7 +95,6 @@
   <div class="result" id="resultArea" style="margin-top:12px;"></div>
 </div>
 
-<!-- 絞り込みタブ -->
 <div id="filterTab" class="panel" style="display:none;">
   <h2>絞り込み</h2>
   <p>ランダム生成の対象にする単語にチェックを入れてください（初期は全選択）。</p>
@@ -109,7 +106,6 @@
   <div class="result" id="filterResult"></div>
 </div>
 
-<!-- 解説タブ -->
 <div id="infoTab" class="panel" style="display:none;">
   <h2>単語の解説</h2>
   <div id="infoContent"></div>
@@ -117,12 +113,12 @@
 
 <script>
 const entries = [
-      { name: "1,9萬シャッフル", type: "搔き回し", condition: "1,9萬を捨てた時", desc: "1,9萬を捨てた際に発動する。自分の手牌から牌を1枚選び、他プレイヤーの手牌から1枚ずつ選びランダムに入れ替える。リーチ者は選ばれない。" },
+  { name: "1,9萬シャッフル", type: "搔き回し", condition: "1,9萬を捨てた時", desc: "1,9萬を捨てた際に発動する。自分の手牌から牌を1枚選び、その後他プレイヤーの手牌から1枚ずつ選びそれぞれをランダムに入れ替える。リーチ者は選ばれない" },
       { name: "1,9索サーチ", type: "防御", condition: "1,9索を捨てた時", desc: "1,9索を捨てた際に発動する。牌をひとつ宣言し、他プレイヤーはその持っている枚数を宣言する。" },
       { name: "1,9筒スキップ", type: "搔き回し", condition: "1,9筒を捨てた時", desc: "1,9筒を捨てた際に発動する。次のプレイヤーの手番は飛ばされる。" },
       { name: "鳴き付与「ズン」", type: "鳴き付与", condition: "全家からの鳴き", desc: "同じ数字の牌であれば牌の種類に関係なく鳴くことができる。その面子は違う種類の牌が混じった刻子として処理される。チーと複合する。" },
       { name: "鳴き付与「チー」", type: "鳴き付与", condition: "上家からの鳴き", desc: "一般的なチー。ズンと複合する。" },
-      { name: "鳴き付与「チョン」", type: "鳴き付与", condition: "全家からの鳴き", desc: "1枚の状態から他プレイヤーから出た同じ牌を2枚組として鳴くことができる。この際、鳴いた牌は頭として処理され、今後は4面子を作っていく。その後、チョンした牌をツモってきた際は加槓のように鳴いた牌に追加できる。チョンとポンが同時に発生された場合はポンが優先される。" },
+      { name: "鳴き付与「チョン」", type: "鳴き付与", condition: "全家からの鳴き", desc: "1枚の状態から他プレイヤーから出た同じ牌を2枚組として鳴くことができる。この際、鳴いた牌は頭として処理され、今後は4面子を作っていく。その後、チョンした牌をツモってきた際は加槓のように鳴いた牌に追加することができる。その後、1枚切り、3面子1雀頭を作っていく。チョンとポンが同時に発生された場合はポンが優先される。" },
       { name: "幻聴", type: "防御", condition: "他プレイヤーからのリーチ宣言時", desc: "他プレイヤーからリーチが入った際に、そのリーチが「両面」「愚形」「シャンポン」「多面張」「その他」のどれであるかを知ることができる。" },
       { name: "裏捨て", type: "防御", condition: "牌を捨てる時", desc: "牌を捨てる際裏向きで捨てることができる。この牌は自身のフリテンにならず、他プレイヤーから上がられたり鳴かれたりすることはない。この能力は1局のうち2回しか発動できない。" },
       { name: "テンパイ気配", type: "防御", condition: "常時", desc: "任意のタイミングで他プレイヤーがテンパイしているかどうかを知ることができる。能力を使うたびに、自分の手牌の１枚を開示しなければならない。開示していた牌を捨てた後も能力を使った回数分の牌は開示しておかなければならない。" },
@@ -155,11 +151,21 @@ function updateRandomTargetSummary(){
 
 function showTab(tabId){
   ['randomTab','filterTab','infoTab'].forEach(id=>{
-    document.getElementById(id).style.display=(id===tabId)?'block':'none';
+    document.getElementById(id).style.display = (id===tabId)?'block':'none';
   });
   if(tabId==='filterTab') renderFilterList();
   if(tabId==='infoTab') renderInfoList();
   if(tabId==='randomTab') updateRandomTargetSummary();
+}
+
+// Fisher–Yatesシャッフルに置き換え
+function shuffleArray(array){
+  let arr = [...array];
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
 }
 
 function pickWords(){
@@ -167,12 +173,12 @@ function pickWords(){
   const result = document.getElementById('resultArea');
   const wordList = document.getElementById('wordListArea');
 
-  if(!Number.isFinite(count) || count<1){ 
+  if(!Number.isFinite(count) || count < 1){ 
     result.textContent = '個数は1以上の数値で指定してください。'; 
     wordList.textContent = '';
     return; 
   }
-  if(activeNames.length===0){ 
+  if(activeNames.length === 0){ 
     result.textContent = '抽選対象がありません。'; 
     wordList.textContent = '';
     return; 
@@ -183,20 +189,20 @@ function pickWords(){
     return; 
   }
 
-  const shuffled = [...activeNames].sort(() => Math.random() - 0.5);
+  const shuffled = shuffleArray(activeNames);
   const selected = shuffled.slice(0, count);
 
-  // 単語のみ表示ゾーン（単語名だけ）
+  // 単語のみ表示
   let wordHtml = '';
   selected.forEach(name => {
     wordHtml += `<div class="word-card">${name}</div>`;
   });
   wordList.innerHTML = wordHtml;
 
-  // 解説付き詳細表示
+  // 解説付き表示
   let html = '';
   selected.forEach(name=>{
-    const e=byName(name);
+    const e = byName(name);
     html += `
       <div class="entry-box">
         <div class="entry-name">${name}<span class="entry-type">${e.type}</span></div>
@@ -209,32 +215,32 @@ function pickWords(){
 }
 
 function renderFilterList(){
-  const area=document.getElementById('filterList'); area.innerHTML='';
+  const area = document.getElementById('filterList'); area.innerHTML='';
   entries.forEach((e,idx)=>{
     const id=`filter_${idx}`;
     const checked=activeNames.includes(e.name)?'checked':'';
-    area.innerHTML+=`<label style="display:block;margin:2px 0;">
+    area.innerHTML += `<label style="display:block;margin:2px 0;">
       <input type="checkbox" id="${id}" value="${e.name}" ${checked}/> ${e.name}</label>`;
   });
 }
 
 function applyFilter(){
-  activeNames=Array.from(document.querySelectorAll('#filterList input[type="checkbox"]:checked')).map(el=>el.value);
+  activeNames = Array.from(document.querySelectorAll('#filterList input[type="checkbox"]:checked')).map(el=>el.value);
   document.getElementById('filterResult').textContent=`適用しました：対象 ${activeNames.length} / ${entries.length}`;
   updateRandomTargetSummary();
 }
 
 function resetFilter(){
-  activeNames=entries.map(e=>e.name);
+  activeNames = entries.map(e => e.name);
   renderFilterList();
   document.getElementById('filterResult').textContent=`リセットしました：対象 ${activeNames.length} / ${entries.length}`;
   updateRandomTargetSummary();
 }
 
 function renderInfoList(){
-  const box=document.getElementById('infoContent'); box.innerHTML='';
+  const box = document.getElementById('infoContent'); box.innerHTML='';
   entries.forEach(e=>{
-    box.innerHTML+=`
+    box.innerHTML += `
       <div class="entry-box">
         <div class="entry-name">${e.name}<span class="entry-type">${e.type}</span></div>
         <div class="entry-condition"><strong>発動条件:</strong> ${e.condition}</div>
